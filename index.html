@@ -1,14 +1,489 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="BlockCraft: Building Game. Construye, explora y sobrevive en un mundo de bloques.">
   <title>BlockCraft: Building Game</title>
+
+  <style>
+    :root {
+      --sky: #77c8f2;
+      --night: #101b2b;
+      --panel: #17283b;
+      --grass: #62c94b;
+      --dirt: #8a5837;
+      --gold: #ffd45a;
+      --white: #f5f7fa;
+      --muted: #bfd0dc;
+      --line: #365269;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--night);
+      color: var(--white);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--gold);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .hero {
+      min-height: 500px;
+      position: relative;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 76px 22px 110px;
+      background: linear-gradient(
+        #5bb7e9 0%,
+        #a6e0f6 62%,
+        #d9f1ff 100%
+      );
+      color: #162b3a;
+    }
+
+    .sun {
+      position: absolute;
+      width: 88px;
+      height: 88px;
+      background: #ffe16c;
+      right: 12%;
+      top: 62px;
+      box-shadow: 0 0 0 12px rgba(255, 225, 108, .18);
+    }
+
+    .cloud {
+      position: absolute;
+      width: 110px;
+      height: 25px;
+      background: #f4fbff;
+      top: 130px;
+      left: 12%;
+      box-shadow:
+        25px -18px 0 #f4fbff,
+        55px 0 0 #f4fbff;
+    }
+
+    .cloud.two {
+      top: 205px;
+      left: auto;
+      right: 22%;
+      transform: scale(.65);
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 850px;
+    }
+
+    .logo {
+      display: inline-block;
+      font-size: clamp(2.4rem, 8vw, 5.6rem);
+      font-weight: 1000;
+      letter-spacing: -.06em;
+      line-height: 1.05;
+      color: #fff;
+      text-shadow:
+        4px 4px 0 #2c5e3a,
+        8px 8px 0 #183b2b,
+        -2px -2px 0 #183b2b,
+        2px -2px 0 #183b2b,
+        -2px 2px 0 #183b2b;
+    }
+
+    .subtitle {
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      font-weight: 900;
+      margin: 18px 0 8px;
+    }
+
+    .intro {
+      max-width: 620px;
+      margin: 0 auto 25px;
+      font-weight: 650;
+    }
+
+    .button {
+      display: inline-block;
+      background: var(--grass);
+      color: #102713;
+      border: 3px solid #2f762b;
+      padding: 12px 20px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      box-shadow: 0 5px 0 #235a20;
+      transition: transform .12s;
+    }
+
+    .button:hover {
+      transform: translateY(2px);
+      text-decoration: none;
+      box-shadow: 0 3px 0 #235a20;
+    }
+
+    .landscape {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 105px;
+      background: var(--grass);
+      border-top: 18px solid #3f9d38;
+    }
+
+    .landscape::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 53px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--dirt) 0 58px,
+        #75462e 58px 64px
+      );
+      border-top: 8px solid #a66a42;
+    }
+
+    .blocks {
+      position: absolute;
+      bottom: 64px;
+      left: 8%;
+      display: flex;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .block {
+      width: 48px;
+      height: 48px;
+      background: #8c969e;
+      border: 4px solid #606e79;
+      box-shadow:
+        inset 5px 5px rgba(255, 255, 255, .15),
+        inset -5px -5px rgba(0, 0, 0, .15);
+    }
+
+    .block.grass {
+      background: linear-gradient(#52b943 0 27%, #8b5a37 27%);
+      border-color: #45743a;
+    }
+
+    .block.dirt {
+      background: #8b5a37;
+      border-color: #6b432c;
+    }
+
+    .wrap {
+      width: min(1080px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    main {
+      padding: 46px 0 60px;
+    }
+
+    .section-title {
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      margin: 0 0 8px;
+      line-height: 1.2;
+    }
+
+    .lead {
+      color: var(--muted);
+      margin: 0 0 25px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin: 28px 0 54px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      padding: 20px;
+      box-shadow: 0 5px 0 #09111b;
+    }
+
+    .icon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .card h3 {
+      margin: 0 0 6px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .download {
+      background: linear-gradient(135deg, #203b4e, #17283b);
+      border: 2px solid var(--line);
+      padding: 28px;
+      text-align: center;
+      margin-bottom: 54px;
+    }
+
+    .download p {
+      color: var(--muted);
+      margin: 8px auto 20px;
+      max-width: 620px;
+    }
+
+    .lists {
+      margin-top: 30px;
+    }
+
+    .list-card {
+      margin: 16px 0;
+      background: var(--panel);
+      border: 2px solid var(--line);
+      padding: 18px;
+    }
+
+    .list-card h3 {
+      margin: 0 0 6px;
+    }
+
+    .list-card p {
+      margin: 0 0 12px;
+      color: var(--muted);
+    }
+
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 180px;
+      resize: vertical;
+      background: #0d1723;
+      color: #e8f2f8;
+      border: 2px solid #45657c;
+      border-radius: 0;
+      padding: 12px;
+      font: 13px/1.5 monospace;
+    }
+
+    textarea:focus {
+      outline: 3px solid var(--gold);
+      outline-offset: 1px;
+    }
+
+    .hint {
+      font-size: .9rem;
+      color: var(--muted);
+    }
+
+    footer {
+      border-top: 4px solid #263e50;
+      padding: 24px 0 36px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 720px) {
+      .features {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        min-height: 480px;
+      }
+
+      .blocks {
+        left: 4%;
+      }
+
+      .block {
+        width: 34px;
+        height: 34px;
+      }
+
+      .sun {
+        right: 8%;
+        width: 55px;
+        height: 55px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <h1>BlockCraft: Building Game</h1>
-  <p>Explora, construye y sobrevive en tu propio mundo.</p>
-  <p><a href="app-ads.txt">Información publicitaria</a></p>
+
+  <header class="hero">
+    <div class="sun" aria-hidden="true"></div>
+    <div class="cloud" aria-hidden="true"></div>
+    <div class="cloud two" aria-hidden="true"></div>
+
+    <div class="hero-inner">
+      <div class="logo">BLOCKCRAFT</div>
+
+      <div class="subtitle">BUILDING GAME</div>
+
+      <p class="intro">
+        Construye tu mundo bloque a bloque. Explora, reúne recursos
+        y crea tu propia aventura en un universo de bloques.
+      </p>
+
+      <!-- Sustituye # por el enlace real de Google Play -->
+      <a class="button" href="#">
+        Próximamente en Google Play
+      </a>
+    </div>
+
+    <div class="blocks" aria-hidden="true">
+      <div class="block grass"></div>
+      <div class="block dirt"></div>
+      <div class="block"></div>
+    </div>
+
+    <div class="landscape" aria-hidden="true"></div>
+  </header>
+
+  <main class="wrap">
+
+    <section aria-labelledby="about-title">
+      <h2 class="section-title" id="about-title">
+        Tu mundo. Tus reglas.
+      </h2>
+
+      <p class="lead">
+        Un juego de construcción y supervivencia donde cada bloque
+        abre nuevas posibilidades.
+      </p>
+
+      <div class="features">
+        <article class="card">
+          <span class="icon" aria-hidden="true">🧱</span>
+          <h3>Construye</h3>
+          <p>
+            Diseña casas, fortalezas y construcciones usando bloques.
+          </p>
+        </article>
+
+        <article class="card">
+          <span class="icon" aria-hidden="true">⛏️</span>
+          <h3>Explora</h3>
+          <p>
+            Recorre el mundo, descubre lugares y reúne materiales.
+          </p>
+        </article>
+
+        <article class="card">
+          <span class="icon" aria-hidden="true">🌲</span>
+          <h3>Sobrevive</h3>
+          <p>
+            Recolecta recursos y crea lo que necesitas para avanzar.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="download" aria-labelledby="download-title">
+      <h2 class="section-title" id="download-title">
+        Empieza tu aventura
+      </h2>
+
+      <p>
+        BlockCraft: Building Game para Android.
+        Encuentra aquí el enlace a la ficha del juego.
+      </p>
+
+      <!-- Sustituye # por el enlace real de Google Play -->
+      <a class="button" href="#">
+        Google Play
+      </a>
+    </section>
+
+    <section class="lists" aria-labelledby="lists-title">
+      <h2 class="section-title" id="lists-title">
+        Listas de vendedores publicitarios
+      </h2>
+
+      <p class="lead">
+        Tres espacios para pegar las listas de tus redes publicitarias.
+      </p>
+
+      <div class="list-card">
+        <h3>Lista 1 — AdMob / Google</h3>
+        <p>Pega aquí las líneas de Google AdMob.</p>
+
+        <textarea
+          aria-label="Lista 1 de vendedores"
+          placeholder="Pega aquí la lista 1..."
+        ></textarea>
+      </div>
+
+      <div class="list-card">
+        <h3>Lista 2 — Unity Ads / LevelPlay</h3>
+        <p>Pega aquí las líneas proporcionadas por Unity.</p>
+
+        <textarea
+          aria-label="Lista 2 de vendedores"
+          placeholder="Pega aquí la lista 2..."
+        ></textarea>
+      </div>
+
+      <div class="list-card">
+        <h3>Lista 3 — Meta Audience Network</h3>
+        <p>Pega aquí las líneas de Meta Audience Network.</p>
+
+        <textarea
+          aria-label="Lista 3 de vendedores"
+          placeholder="Pega aquí la lista 3..."
+        ></textarea>
+      </div>
+
+      <p class="hint">
+        Las listas de esta página son espacios de trabajo.
+        Los vendedores autorizados deben publicarse en el archivo
+        app-ads.txt de tu dominio de desarrollador.
+      </p>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap footer-row">
+      <span><strong>BlockCraft: Building Game</strong></span>
+      <span>Construye · Explora · Sobrevive</span>
+    </div>
+  </footer>
+
 </body>
 </html>
